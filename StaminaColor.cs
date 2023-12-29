@@ -13,13 +13,13 @@ namespace AccurateStaminaDisplay
         {
             if (exhausted)
             {
-                if ((player.sprintMeter >= 0.3f && !player.criticallyInjured && player.isMovementHindered <= 0f) || player.isSprinting)
+                if ((player.sprintMeter >= 0.3f && !player.criticallyInjured && !player.isExhausted) || player.isSprinting)
                 {
                     exhausted = false;
                     player.sprintMeterUI.color = normColor;
                 }
             }
-            else if (player.isExhausted || (!player.isSprinting && player.sprintMeter < 0.3f) || player.criticallyInjured || player.isMovementHindered > 0f)
+            else if (!player.isSprinting && (player.isExhausted || player.sprintMeter < 0.3f || player.criticallyInjured))
             {
                 exhausted = true;
                 player.sprintMeterUI.color = exColor;
