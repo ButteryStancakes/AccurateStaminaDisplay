@@ -11,8 +11,8 @@ namespace AccurateStaminaDisplay.Patches
         [HarmonyPostfix]
         public static void Awake(PlayerControllerB __instance)
         {
-            if (Plugin.configExhaustedRed.Value)
-                __instance.gameObject.AddComponent<StaminaColor>().player = __instance;
+            if ((Plugin.configExhaustedRed.Value || Plugin.configInhalantInfo.Value) && !__instance.sprintMeterUI.GetComponent<StaminaColor>())
+                __instance.sprintMeterUI.gameObject.AddComponent<StaminaColor>();
         }
 
         [HarmonyPatch(typeof(PlayerControllerB), "LateUpdate")]

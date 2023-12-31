@@ -1,3 +1,8 @@
+# v1.1.0
+- "InhalantInfo" configuration setting added
+  - Gradually shifts the color of the meter as you inhale TZP for endurance
+  - Light usage = yellow. Heavy usage = green. Overdose = white.
+- Refactored how the player script is referenced
 # v1.0.3
 - Final fix for the flickering bug
 # v1.0.2
