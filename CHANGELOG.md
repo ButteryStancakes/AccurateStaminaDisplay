@@ -1,3 +1,5 @@
+# v1.1.1
+- Adjusted the green used by the inhalant palette
 # v1.1.0
 - "InhalantInfo" configuration setting added
   - Gradually shifts the color of the meter as you inhale TZP for endurance

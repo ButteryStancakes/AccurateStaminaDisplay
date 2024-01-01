@@ -12,13 +12,14 @@ namespace AccurateStaminaDisplay
 
         void Awake()
         {
+            Color lime = new Color(0.425f, 1f, 0f);
             tzpGrad.SetKeys(new GradientColorKey[]
             {
                 new GradientColorKey(normColor, 0f),
                 new GradientColorKey(Color.yellow, 0.1f),
                 new GradientColorKey(Color.yellow, 0.2f),
-                new GradientColorKey(Color.green, 0.65f),
-                new GradientColorKey(Color.green, 0.77f),
+                new GradientColorKey(lime, 0.65f),
+                new GradientColorKey(lime, 0.77f),
                 new GradientColorKey(Color.white, 1f)
             },
             new GradientAlphaKey[]
