@@ -12,7 +12,7 @@ namespace AccurateStaminaDisplay
 
         void Awake()
         {
-            Color lime = new Color(0.425f, 1f, 0f);
+            Color lime = new Color(0.4f, 1f, 0f);
             tzpGrad.SetKeys(new GradientColorKey[]
             {
                 new GradientColorKey(normColor, 0f),
@@ -42,7 +42,7 @@ namespace AccurateStaminaDisplay
                 if (player.isSprinting || player.sprintMeter >= 0.3f)
                     exhausted = false;
             }
-            else if (Plugin.configExhaustedRed.Value && ((!player.isSprinting && player.sprintMeter < 0.3f) || player.isExhausted))
+            else if (Plugin.configExhaustedRed.Value && !Plugin.configEmptyEarly.Value && ((!player.isSprinting && player.sprintMeter < 0.3f) || player.isExhausted))
             {
                 exhausted = true;
                 player.sprintMeterUI.color = exColor;

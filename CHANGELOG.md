@@ -1,3 +1,7 @@
+# v1.1.2
+- Added "EmptyEarly" setting to restore the vanilla game's behavior of displaying an empty stamina meter for the last 20%
+  - This makes it easier to tell when releasing the sprint key would lead to early exhaustion
+  - However, this makes it more difficult to tell exactly how much longer exhaustion will last
 # v1.1.1
 - Adjusted the green used by the inhalant palette
 # v1.1.0
