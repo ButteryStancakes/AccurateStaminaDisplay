@@ -7,4 +7,5 @@ In the original game, the meter appears full until you are at about 90% stamina,
 
 Includes configuration settings for added visual cues:
 - Turns the meter red when you are exhausted (can't sprint).
-- Gradually changes the meter's base color as you inhale TZP for endurance. (orange -> yellow -> green)
+- Turns the last 20% of the meter red always, so it's easier to measure exhaustion.
+- Gradually changes the meter's base color as you inhale TZP for endurance. (orange -> yellow -> green -> white)

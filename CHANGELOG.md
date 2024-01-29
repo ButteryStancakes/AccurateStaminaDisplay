@@ -1,3 +1,9 @@
+# v1.2.0
+- Added "AlwaysShowRedPortion" setting to display the last 20% of the stamina bar as red always
+  - Similar to "EmptyEarly", this makes it easy to tell when releasing the sprint key would cause exhaustion
+  - This still allows you to measure how long exhaustion will last, as well as how long you can keep sprinting before automatic exhaustion
+  - The best of all worlds!
+  - "ExhaustedRed" must be enabled and "EmptyEarly" must be disabled or this setting will not take effect
 # v1.1.2
 - Added "EmptyEarly" setting to restore the vanilla game's behavior of displaying an empty stamina meter for the last 20%
   - This makes it easier to tell when releasing the sprint key would lead to early exhaustion
