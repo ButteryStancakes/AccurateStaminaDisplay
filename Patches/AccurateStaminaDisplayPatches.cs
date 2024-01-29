@@ -11,6 +11,7 @@ namespace AccurateStaminaDisplay.Patches
         [HarmonyPostfix]
         public static void Awake(PlayerControllerB __instance)
         {
+            StaminaColor.minStamina = Plugin.configEmptyEarly.Value ? 0.3f : 0.1f;
             if (((Plugin.configExhaustedRed.Value && !Plugin.configEmptyEarly.Value) || Plugin.configInhalantInfo.Value) && !__instance.sprintMeterUI.GetComponent<StaminaColor>())
                 __instance.sprintMeterUI.gameObject.AddComponent<StaminaColor>();
         }
@@ -19,10 +20,8 @@ namespace AccurateStaminaDisplay.Patches
         [HarmonyPostfix]
         public static void LateUpdate(PlayerControllerB __instance)
         {
-            float minStamina = Plugin.configEmptyEarly.Value ? 0.3f : 0.1f;
-
-            if (__instance.sprintMeter > minStamina && __instance.sprintMeter < 1f)
-                __instance.sprintMeterUI.fillAmount = Mathf.Lerp(0.298f, 0.91f, (__instance.sprintMeter - minStamina) / (1f - minStamina));
+            if (__instance.sprintMeter > StaminaColor.minStamina && __instance.sprintMeter < 1f)
+                __instance.sprintMeterUI.fillAmount = Mathf.Lerp(StaminaColor.METER_EMPTY, StaminaColor.METER_FULL, (__instance.sprintMeter - StaminaColor.minStamina) / (1f - StaminaColor.minStamina));
         }
     }
 }
