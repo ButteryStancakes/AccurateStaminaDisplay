@@ -1,0 +1,142 @@
+﻿using UnityEngine;
+using UnityEngine.UI;
+using GameNetcodeStuff;
+using BepInEx.Bootstrap;
+
+namespace AccurateStaminaDisplay
+{
+    internal static class NewStaminaMeter
+    {
+        // vanilla considers 0.1 stamina to be empty, not 0
+        const float STAMINA_EMPTY = 0.1f;
+        // 0.3 stamina is the "exhaustion threshold" - if you release sprint while below 0.3 you become exhausted, once you regen 0.3 or more, exhaustion ends
+        const float STAMINA_EXHAUSTED = 0.3f;
+        // 0.298 and 0.91 roughly correlate to the start and end points on the meter graphic
+        const float METER_EMPTY = 0.298f, METER_FULL = 0.91f;
+
+        // default stamina meter color (orange)
+        static readonly Color NORM_COLOR = new Color(1f, 0.4626f, 0f);
+        // exhausted stamina meter color (red)
+        static readonly Color EX_COLOR = new Color(0.9f, 0.1f, 0f);
+
+        // references/controls
+        static PlayerControllerB player;
+        static float minStamina;
+        static bool exhausted;
+
+        // secondary meter, overlaid for AlwaysShow
+        static Image meterOverlay;
+        static readonly float OVERLAY_MAX = Mathf.Lerp(METER_EMPTY, METER_FULL, Mathf.InverseLerp(STAMINA_EMPTY, 1f, STAMINA_EXHAUSTED));
+
+        // gradient, used to sample color for InhalantInfo
+        static Gradient tzpGrad;
+        // lime shade used by the above
+        static readonly Color LIME = new Color(0.4f, 1f, 0f);
+        // ranges for "drunkness" - or how much TZP inhaled. mostly anecdotal magic numbers
+        const float TZP_LIGHT_MIN = 0.1f, TZP_LIGHT_MAX = 0.2f, TZP_HEAVY_MIN = 0.65f, TZP_HEAVY_MAX = 0.77f;
+
+        // ShyHUD compatibility
+        static CanvasRenderer meterAlpha, overlayAlpha;
+
+        internal static void UpdateMeter()
+        {
+            // not initialized yet, skip processing for this frame and initialize
+            if (player == null)
+            {
+                Init();
+                return;
+            }
+
+            // controls what is considered "empty" on the meter; either the "exhaustion threshold", or when sprinting automatically ends
+            minStamina = Plugin.configExhaustionIndicator.Value == "Empty" ? STAMINA_EXHAUSTED : STAMINA_EMPTY;
+
+            // first calculate what percentage of "true stamina" the player actually has left (dependent on above)
+            float trueStamina = Mathf.InverseLerp(minStamina, 1f, player.sprintMeter);
+            // then calculate what portion of the bar to display based on that percentage
+            player.sprintMeterUI.fillAmount = Mathf.Lerp(METER_EMPTY, METER_FULL, trueStamina);
+
+            // process the "AlwaysShow" overlay
+            if (meterOverlay != null)
+            {
+                // in case LethalConfig user changes settings mid-game
+                // also, color weirdness happens when AlwaysShow and InhalantInfo are combined...
+                if (Plugin.configExhaustionIndicator.Value == "AlwaysShow" && (!Plugin.configInhalantInfo.Value || player.drunkness < float.Epsilon))
+                {
+                    meterOverlay.fillAmount = Mathf.Min(player.sprintMeterUI.fillAmount, OVERLAY_MAX);
+                    // ShyHUD compatibility
+                    if (overlayAlpha != null)
+                        overlayAlpha.SetAlpha(meterAlpha.GetAlpha());
+                    meterOverlay.gameObject.SetActive(true);
+                }
+                else
+                    meterOverlay.gameObject.SetActive(false);
+            }
+
+            // "AlwaysShow" is treated as "ChangeColor" when player has endurance, because otherwise it's pretty ugly...
+            bool changeColor = Plugin.configExhaustionIndicator.Value == "ChangeColor" || (Plugin.configInhalantInfo.Value && Plugin.configExhaustionIndicator.Value == "AlwaysShow" && player.drunkness > 0);
+
+            if (exhausted)
+            {
+                // check if bar needs to change back from red
+                if (changeColor || player.isSprinting || player.sprintMeter >= STAMINA_EXHAUSTED)
+                    exhausted = false;
+            }
+            else if (changeColor && player.isExhausted)
+            {
+                // can't sprint anymore; turn bar red
+                exhausted = true;
+                player.sprintMeterUI.color = EX_COLOR;
+            }
+            else
+            {
+                // not exhausted; is a TZP color sample needed?
+                if (Plugin.configInhalantInfo.Value && player.drunkness > 0f && tzpGrad != null)
+                    player.sprintMeterUI.color = tzpGrad.Evaluate(player.drunkness);
+                // otherwise default color
+                else
+                    player.sprintMeterUI.color = NORM_COLOR;
+            }
+        }
+
+        static void Init()
+        {
+            // pull player reference again
+            player = GameNetworkManager.Instance.localPlayerController;
+
+            // initialize the red portion of the bar for AlwaysShow
+            if (meterOverlay == null && player != null)
+            {
+                Transform transMeterOverlay = Object.Instantiate(player.sprintMeterUI.transform, player.sprintMeterUI.transform.parent);
+                meterOverlay = transMeterOverlay.GetComponent<Image>();
+                meterOverlay.color = EX_COLOR;
+            }
+
+            // initialize the gradient used for TZP sampling
+            if (tzpGrad == null)
+            {
+                tzpGrad = new Gradient();
+                tzpGrad.SetKeys(new GradientColorKey[]
+                {
+                    new GradientColorKey(NORM_COLOR, 0f),
+                    new GradientColorKey(Color.yellow, TZP_LIGHT_MIN),
+                    new GradientColorKey(Color.yellow, TZP_LIGHT_MAX),
+                    new GradientColorKey(LIME, TZP_HEAVY_MIN),
+                    new GradientColorKey(LIME, TZP_HEAVY_MAX),
+                    new GradientColorKey(Color.white, 1f)
+                },
+                new GradientAlphaKey[]
+                {
+                    new GradientAlphaKey(1f, 0f),
+                    new GradientAlphaKey(1f, 1f)
+                });
+            }
+
+            // ShyHUD compatibility
+            if (Chainloader.PluginInfos.ContainsKey("ShyHUD") && player != null && meterOverlay != null)
+            {
+                meterAlpha = player.sprintMeterUI.GetComponent<CanvasRenderer>();
+                overlayAlpha = meterOverlay.GetComponent<CanvasRenderer>();
+            }
+        }
+    }
+}

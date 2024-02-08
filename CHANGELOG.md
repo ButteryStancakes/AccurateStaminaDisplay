@@ -1,3 +1,8 @@
+# v2.0.0
+- Complete code rewrite
+- Simplified the config
+- Should feel exactly the same in-game, but hopefully a lot cleaner and neater under the hood
+- ShyHUD compatibility
 # v1.2.0
 - Added "AlwaysShowRedPortion" setting to display the last 20% of the stamina bar as red always
   - Similar to "EmptyEarly", this makes it easy to tell when releasing the sprint key would cause exhaustion
