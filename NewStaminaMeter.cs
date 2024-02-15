@@ -55,12 +55,41 @@ namespace AccurateStaminaDisplay
             // then calculate what portion of the bar to display based on that percentage
             player.sprintMeterUI.fillAmount = Mathf.Lerp(METER_EMPTY, METER_FULL, trueStamina);
 
+            // simulate PlayerControllerB.movementHinderedPrev
+            bool hindered = player.isMovementHindered > 0 && player.thisController.isGrounded;
+
+            // "AlwaysShow" is treated as "ChangeColor" when player has endurance, because otherwise it's pretty ugly...
+            // now also considers "hindrance" same as exhaustion
+            bool changeColor = Plugin.configExhaustionIndicator.Value == "ChangeColor" || (Plugin.configExhaustionIndicator.Value == "AlwaysShow" && (hindered || (Plugin.configInhalantInfo.Value && player.drunkness > 0)));
+
+            if (exhausted)
+            {
+                // check if bar needs to change back from red
+                if (!changeColor || player.isSprinting || (player.sprintMeter >= STAMINA_EXHAUSTED && !hindered))
+                    exhausted = false;
+            }
+            else if (changeColor && (player.isExhausted || hindered))
+            {
+                // can't sprint anymore; turn bar red
+                exhausted = true;
+                player.sprintMeterUI.color = EX_COLOR;
+            }
+            else
+            {
+                // not exhausted/hindered, might need to sample TZP color
+                if (Plugin.configInhalantInfo.Value && player.drunkness > 0f && tzpGrad != null)
+                    player.sprintMeterUI.color = tzpGrad.Evaluate(player.drunkness);
+                // otherwise default color
+                else
+                    player.sprintMeterUI.color = NORM_COLOR;
+            }
+
             // process the "AlwaysShow" overlay
             if (meterOverlay != null)
             {
                 // in case LethalConfig user changes settings mid-game
-                // also, color weirdness happens when AlwaysShow and InhalantInfo are combined...
-                if (Plugin.configExhaustionIndicator.Value == "AlwaysShow" && (!Plugin.configInhalantInfo.Value || player.drunkness < float.Epsilon))
+                // some special cases treat "AlwaysShow" as "ChangeColor" (TZP endurance or hindrance)
+                if (Plugin.configExhaustionIndicator.Value == "AlwaysShow" && !exhausted && !player.criticallyInjured)
                 {
                     meterOverlay.fillAmount = Mathf.Min(player.sprintMeterUI.fillAmount, OVERLAY_MAX);
                     // ShyHUD compatibility
@@ -70,31 +99,6 @@ namespace AccurateStaminaDisplay
                 }
                 else
                     meterOverlay.gameObject.SetActive(false);
-            }
-
-            // "AlwaysShow" is treated as "ChangeColor" when player has endurance, because otherwise it's pretty ugly...
-            bool changeColor = Plugin.configExhaustionIndicator.Value == "ChangeColor" || (Plugin.configInhalantInfo.Value && Plugin.configExhaustionIndicator.Value == "AlwaysShow" && player.drunkness > 0);
-
-            if (exhausted)
-            {
-                // check if bar needs to change back from red
-                if (changeColor || player.isSprinting || player.sprintMeter >= STAMINA_EXHAUSTED)
-                    exhausted = false;
-            }
-            else if (changeColor && player.isExhausted)
-            {
-                // can't sprint anymore; turn bar red
-                exhausted = true;
-                player.sprintMeterUI.color = EX_COLOR;
-            }
-            else
-            {
-                // not exhausted; is a TZP color sample needed?
-                if (Plugin.configInhalantInfo.Value && player.drunkness > 0f && tzpGrad != null)
-                    player.sprintMeterUI.color = tzpGrad.Evaluate(player.drunkness);
-                // otherwise default color
-                else
-                    player.sprintMeterUI.color = NORM_COLOR;
             }
         }
 
