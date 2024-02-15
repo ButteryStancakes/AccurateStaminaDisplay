@@ -2,6 +2,7 @@
 using UnityEngine.UI;
 using GameNetcodeStuff;
 using BepInEx.Bootstrap;
+using System.Reflection;
 
 namespace AccurateStaminaDisplay
 {
@@ -38,6 +39,9 @@ namespace AccurateStaminaDisplay
         // ShyHUD compatibility
         static CanvasRenderer meterAlpha, overlayAlpha;
 
+        // used for hindrance
+        static FieldInfo playerMovementHinderedPrev = typeof(PlayerControllerB).GetField("movementHinderedPrev", BindingFlags.NonPublic | BindingFlags.Instance);
+
         internal static void UpdateMeter()
         {
             // not initialized yet, skip processing for this frame and initialize
@@ -55,8 +59,8 @@ namespace AccurateStaminaDisplay
             // then calculate what portion of the bar to display based on that percentage
             player.sprintMeterUI.fillAmount = Mathf.Lerp(METER_EMPTY, METER_FULL, trueStamina);
 
-            // simulate PlayerControllerB.movementHinderedPrev
-            bool hindered = player.isMovementHindered > 0 && player.thisController.isGrounded;
+            // simulate PlayerControllerB.movementHinderedPrev of local player
+            bool hindered = (int)playerMovementHinderedPrev.GetValue(player) > 0;
 
             // "AlwaysShow" is treated as "ChangeColor" when player has endurance, because otherwise it's pretty ugly...
             // now also considers "hindrance" same as exhaustion
