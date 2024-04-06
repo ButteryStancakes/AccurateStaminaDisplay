@@ -62,9 +62,12 @@ namespace AccurateStaminaDisplay
             // simulate PlayerControllerB.movementHinderedPrev of local player
             bool hindered = (int)playerMovementHinderedPrev.GetValue(player) > 0;
 
+            // is the bar using a non-standard color because of TZP?
+            bool recoloredTZP = Plugin.configInhalantInfo.Value && player.drunkness > 0f && tzpGrad != null;
+
             // "AlwaysShow" is treated as "ChangeColor" when player has endurance, because otherwise it's pretty ugly...
             // now also considers "hindrance" same as exhaustion
-            bool changeColor = Plugin.configExhaustionIndicator.Value == "ChangeColor" || (Plugin.configExhaustionIndicator.Value == "AlwaysShow" && (hindered || (Plugin.configInhalantInfo.Value && player.drunkness > 0)));
+            bool changeColor = Plugin.configExhaustionIndicator.Value == "ChangeColor" || (Plugin.configExhaustionIndicator.Value == "AlwaysShow" && (hindered || recoloredTZP));
 
             if (exhausted)
             {
@@ -81,7 +84,7 @@ namespace AccurateStaminaDisplay
             else
             {
                 // not exhausted/hindered, might need to sample TZP color
-                if (Plugin.configInhalantInfo.Value && player.drunkness > 0f && tzpGrad != null)
+                if (recoloredTZP)
                     player.sprintMeterUI.color = tzpGrad.Evaluate(player.drunkness);
                 // otherwise default color
                 else
@@ -93,7 +96,7 @@ namespace AccurateStaminaDisplay
             {
                 // in case LethalConfig user changes settings mid-game
                 // some special cases treat "AlwaysShow" as "ChangeColor" (TZP endurance or hindrance)
-                if (Plugin.configExhaustionIndicator.Value == "AlwaysShow" && !exhausted && !player.criticallyInjured)
+                if (Plugin.configExhaustionIndicator.Value == "AlwaysShow" && !exhausted && !player.criticallyInjured && !recoloredTZP)
                 {
                     meterOverlay.fillAmount = Mathf.Min(player.sprintMeterUI.fillAmount, OVERLAY_MAX);
                     // ShyHUD compatibility
