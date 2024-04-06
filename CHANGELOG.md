@@ -1,3 +1,5 @@
+# v2.0.2
+- Fixed an oversight that caused AlwaysShow + InhalantInfo to create some ugly color combinations
 # v2.0.1
 - Fixed red bar still being visible while critically injured when using AlwaysShow
 - When using ChangeColor or AlwaysShow, the bar will appear red now when you are "hindered" (stuck in spider webs or deep water)

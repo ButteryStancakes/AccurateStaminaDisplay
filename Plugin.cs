@@ -8,7 +8,7 @@ namespace AccurateStaminaDisplay
     [BepInDependency("ShyHUD", BepInDependency.DependencyFlags.SoftDependency)]
     public class Plugin : BaseUnityPlugin
     {
-        const string PLUGIN_GUID = "butterystancakes.lethalcompany.accuratestaminadisplay", PLUGIN_NAME = "Accurate Stamina Display", PLUGIN_VERSION = "2.0.1";
+        const string PLUGIN_GUID = "butterystancakes.lethalcompany.accuratestaminadisplay", PLUGIN_NAME = "Accurate Stamina Display", PLUGIN_VERSION = "2.0.2";
         public static ConfigEntry<bool> configInhalantInfo;
         public static ConfigEntry<string> configExhaustionIndicator;
 
