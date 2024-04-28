@@ -1,3 +1,5 @@
+# v2.0.3
+- Movement is no longer considered hindered when climbing a ladder
 # v2.0.2
 - Fixed an oversight that caused AlwaysShow + InhalantInfo to create some ugly color combinations
 # v2.0.1

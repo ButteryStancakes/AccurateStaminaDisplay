@@ -12,8 +12,8 @@ namespace AccurateStaminaDisplay
         const float STAMINA_EMPTY = 0.1f;
         // 0.3 stamina is the "exhaustion threshold" - if you release sprint while below 0.3 you become exhausted, once you regen 0.3 or more, exhaustion ends
         const float STAMINA_EXHAUSTED = 0.3f;
-        // 0.298 and 0.91 roughly correlate to the start and end points on the meter graphic
-        const float METER_EMPTY = 0.298f, METER_FULL = 0.91f;
+        // 0.29767 and 0.911 roughly correlate to the start and end points on the meter graphic
+        const float METER_EMPTY = 0.29767f, METER_FULL = 0.911f;
 
         // default stamina meter color (orange)
         static readonly Color NORM_COLOR = new Color(1f, 0.4626f, 0f);
@@ -60,7 +60,7 @@ namespace AccurateStaminaDisplay
             player.sprintMeterUI.fillAmount = Mathf.Lerp(METER_EMPTY, METER_FULL, trueStamina);
 
             // simulate PlayerControllerB.movementHinderedPrev of local player
-            bool hindered = (int)playerMovementHinderedPrev.GetValue(player) > 0;
+            bool hindered = (int)playerMovementHinderedPrev.GetValue(player) > 0 && !player.isClimbingLadder;
 
             // is the bar using a non-standard color because of TZP?
             bool recoloredTZP = Plugin.configInhalantInfo.Value && player.drunkness > 0f && tzpGrad != null;
