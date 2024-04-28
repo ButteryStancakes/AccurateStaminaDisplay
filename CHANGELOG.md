@@ -1,3 +1,5 @@
+# v2.0.4
+- Previous change now also applies to flying with a jetpack (or tulip snakes)
 # v2.0.3
 - Movement is no longer considered hindered when climbing a ladder
 # v2.0.2

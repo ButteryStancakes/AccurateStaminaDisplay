@@ -60,7 +60,7 @@ namespace AccurateStaminaDisplay
             player.sprintMeterUI.fillAmount = Mathf.Lerp(METER_EMPTY, METER_FULL, trueStamina);
 
             // simulate PlayerControllerB.movementHinderedPrev of local player
-            bool hindered = (int)playerMovementHinderedPrev.GetValue(player) > 0 && !player.isClimbingLadder;
+            bool hindered = (int)playerMovementHinderedPrev.GetValue(player) > 0 && !player.isClimbingLadder && !player.jetpackControls;
 
             // is the bar using a non-standard color because of TZP?
             bool recoloredTZP = Plugin.configInhalantInfo.Value && player.drunkness > 0f && tzpGrad != null;
