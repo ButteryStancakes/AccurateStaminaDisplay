@@ -1,3 +1,5 @@
+# v2.1.0
+- ExhaustionIndicator setting now supports dropdown with LethalConfig
 # v2.0.4
 - Previous change now also applies to flying with a jetpack (or tulip snakes)
 # v2.0.3

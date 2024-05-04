@@ -16,9 +16,9 @@ namespace AccurateStaminaDisplay
         const float METER_EMPTY = 0.29767f, METER_FULL = 0.911f;
 
         // default stamina meter color (orange)
-        static readonly Color NORM_COLOR = new Color(1f, 0.4626f, 0f);
+        static readonly Color NORM_COLOR = new(1f, 0.4626f, 0f);
         // exhausted stamina meter color (red)
-        static readonly Color EX_COLOR = new Color(0.9f, 0.1f, 0f);
+        static readonly Color EX_COLOR = new(0.9f, 0.1f, 0f);
 
         // references/controls
         static PlayerControllerB player;
@@ -32,7 +32,7 @@ namespace AccurateStaminaDisplay
         // gradient, used to sample color for InhalantInfo
         static Gradient tzpGrad;
         // lime shade used by the above
-        static readonly Color LIME = new Color(0.4f, 1f, 0f);
+        static readonly Color LIME = new(0.4f, 1f, 0f);
         // ranges for "drunkness" - or how much TZP inhaled. mostly anecdotal magic numbers
         const float TZP_LIGHT_MIN = 0.1f, TZP_LIGHT_MAX = 0.2f, TZP_HEAVY_MIN = 0.65f, TZP_HEAVY_MAX = 0.77f;
 
@@ -40,7 +40,7 @@ namespace AccurateStaminaDisplay
         static CanvasRenderer meterAlpha, overlayAlpha;
 
         // used for hindrance
-        static FieldInfo playerMovementHinderedPrev = typeof(PlayerControllerB).GetField("movementHinderedPrev", BindingFlags.NonPublic | BindingFlags.Instance);
+        static readonly FieldInfo playerMovementHinderedPrev = typeof(PlayerControllerB).GetField("movementHinderedPrev", BindingFlags.NonPublic | BindingFlags.Instance);
 
         internal static void UpdateMeter()
         {
@@ -52,7 +52,7 @@ namespace AccurateStaminaDisplay
             }
 
             // controls what is considered "empty" on the meter; either the "exhaustion threshold", or when sprinting automatically ends
-            minStamina = Plugin.configExhaustionIndicator.Value == "Empty" ? STAMINA_EXHAUSTED : STAMINA_EMPTY;
+            minStamina = Plugin.configExhaustionIndicator.Value == ExhaustionIndicator.Empty ? STAMINA_EXHAUSTED : STAMINA_EMPTY;
 
             // first calculate what percentage of "true stamina" the player actually has left (dependent on above)
             float trueStamina = Mathf.InverseLerp(minStamina, 1f, player.sprintMeter);
@@ -67,7 +67,7 @@ namespace AccurateStaminaDisplay
 
             // "AlwaysShow" is treated as "ChangeColor" when player has endurance, because otherwise it's pretty ugly...
             // now also considers "hindrance" same as exhaustion
-            bool changeColor = Plugin.configExhaustionIndicator.Value == "ChangeColor" || (Plugin.configExhaustionIndicator.Value == "AlwaysShow" && (hindered || recoloredTZP));
+            bool changeColor = Plugin.configExhaustionIndicator.Value == ExhaustionIndicator.ChangeColor || (Plugin.configExhaustionIndicator.Value == ExhaustionIndicator.AlwaysShow && (hindered || recoloredTZP));
 
             if (exhausted)
             {
@@ -96,7 +96,7 @@ namespace AccurateStaminaDisplay
             {
                 // in case LethalConfig user changes settings mid-game
                 // some special cases treat "AlwaysShow" as "ChangeColor" (TZP endurance or hindrance)
-                if (Plugin.configExhaustionIndicator.Value == "AlwaysShow" && !exhausted && !player.criticallyInjured && !recoloredTZP)
+                if (Plugin.configExhaustionIndicator.Value == ExhaustionIndicator.AlwaysShow && !exhausted && !player.criticallyInjured && !recoloredTZP)
                 {
                     meterOverlay.fillAmount = Mathf.Min(player.sprintMeterUI.fillAmount, OVERLAY_MAX);
                     // ShyHUD compatibility
