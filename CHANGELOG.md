@@ -1,3 +1,5 @@
+# v2.1.1
+- Retooled fix from v2.0.3 to fix the meter color flickering when dismounting ladders
 # v2.1.0
 - ExhaustionIndicator setting now supports dropdown with LethalConfig
 # v2.0.4
