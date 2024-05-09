@@ -41,6 +41,9 @@ namespace AccurateStaminaDisplay
 
         // used for hindrance
         static readonly FieldInfo playerMovementHinderedPrev = typeof(PlayerControllerB).GetField("movementHinderedPrev", BindingFlags.NonPublic | BindingFlags.Instance);
+		
+		// prevents flickering when dismounnting ladders after hindrance
+		static bool wasClimbing;
 
         internal static void UpdateMeter()
         {
@@ -58,9 +61,15 @@ namespace AccurateStaminaDisplay
             float trueStamina = Mathf.InverseLerp(minStamina, 1f, player.sprintMeter);
             // then calculate what portion of the bar to display based on that percentage
             player.sprintMeterUI.fillAmount = Mathf.Lerp(METER_EMPTY, METER_FULL, trueStamina);
+			
+			// fix hindrance flickering with ladders
+			if (player.isClimbingLadder)
+				wasClimbing = true;
+            else if (player.thisController.isGrounded)
+                wasClimbing = false;
 
             // simulate PlayerControllerB.movementHinderedPrev of local player
-            bool hindered = (int)playerMovementHinderedPrev.GetValue(player) > 0 && !player.isClimbingLadder && !player.jetpackControls;
+            bool hindered = (int)playerMovementHinderedPrev.GetValue(player) > 0 && !wasClimbing && !player.jetpackControls;
 
             // is the bar using a non-standard color because of TZP?
             bool recoloredTZP = Plugin.configInhalantInfo.Value && player.drunkness > 0f && tzpGrad != null;
