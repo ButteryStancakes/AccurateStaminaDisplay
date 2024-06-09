@@ -111,6 +111,7 @@ namespace AccurateStaminaDisplay
                     // ShyHUD compatibility
                     if (overlayAlpha != null)
                         overlayAlpha.SetAlpha(meterAlpha.GetAlpha());
+                    meterOverlay.enabled = player.sprintMeterUI.enabled;
                     meterOverlay.gameObject.SetActive(true);
                 }
                 else
