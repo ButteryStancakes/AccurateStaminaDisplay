@@ -8,9 +8,9 @@ namespace AccurateStaminaDisplay.Patches
     {
         [HarmonyPatch(typeof(PlayerControllerB), "LateUpdate")]
         [HarmonyPostfix]
-        public static void PlayerPostLateUpdate()
+        public static void PlayerPostLateUpdate(int ___movementHinderedPrev)
         {
-            NewStaminaMeter.UpdateMeter();
+            NewStaminaMeter.UpdateMeter(___movementHinderedPrev);
         }
     }
 }

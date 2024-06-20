@@ -2,7 +2,6 @@
 using UnityEngine.UI;
 using GameNetcodeStuff;
 using BepInEx.Bootstrap;
-using System.Reflection;
 
 namespace AccurateStaminaDisplay
 {
@@ -38,14 +37,11 @@ namespace AccurateStaminaDisplay
 
         // ShyHUD compatibility
         static CanvasRenderer meterAlpha, overlayAlpha;
-
-        // used for hindrance
-        static readonly FieldInfo playerMovementHinderedPrev = typeof(PlayerControllerB).GetField("movementHinderedPrev", BindingFlags.NonPublic | BindingFlags.Instance);
 		
 		// prevents flickering when dismounnting ladders after hindrance
 		static bool wasClimbing;
 
-        internal static void UpdateMeter()
+        internal static void UpdateMeter(int playerMovementHinderedPrev)
         {
             // not initialized yet, skip processing for this frame and initialize
             if (player == null)
@@ -68,8 +64,8 @@ namespace AccurateStaminaDisplay
             else if (player.thisController.isGrounded)
                 wasClimbing = false;
 
-            // simulate PlayerControllerB.movementHinderedPrev of local player
-            bool hindered = (int)playerMovementHinderedPrev.GetValue(player) > 0 && !wasClimbing && !player.jetpackControls;
+            // check that player is both hindered and on the floor
+            bool hindered = playerMovementHinderedPrev > 0 && !wasClimbing && !player.jetpackControls;
 
             // is the bar using a non-standard color because of TZP?
             bool recoloredTZP = Plugin.configInhalantInfo.Value && player.drunkness > 0f && tzpGrad != null;
@@ -111,6 +107,7 @@ namespace AccurateStaminaDisplay
                     // ShyHUD compatibility
                     if (overlayAlpha != null)
                         overlayAlpha.SetAlpha(meterAlpha.GetAlpha());
+                    // for critical injury hiding the meter
                     meterOverlay.enabled = player.sprintMeterUI.enabled;
                     meterOverlay.gameObject.SetActive(true);
                 }
@@ -124,12 +121,22 @@ namespace AccurateStaminaDisplay
             // pull player reference again
             player = GameNetworkManager.Instance.localPlayerController;
 
-            // initialize the red portion of the bar for AlwaysShow
-            if (meterOverlay == null && player != null)
+            if (player != null)
             {
-                Transform transMeterOverlay = Object.Instantiate(player.sprintMeterUI.transform, player.sprintMeterUI.transform.parent);
-                meterOverlay = transMeterOverlay.GetComponent<Image>();
-                meterOverlay.color = EX_COLOR;
+                // initialize the red portion of the bar for AlwaysShow
+                if (meterOverlay == null)
+                {
+                    Transform transMeterOverlay = Object.Instantiate(player.sprintMeterUI.transform, player.sprintMeterUI.transform.parent);
+                    meterOverlay = transMeterOverlay.GetComponent<Image>();
+                    meterOverlay.color = EX_COLOR;
+                }
+
+                // ShyHUD compatibility
+                if (Chainloader.PluginInfos.ContainsKey("ShyHUD") && meterOverlay != null)
+                {
+                    meterAlpha = player.sprintMeterUI.GetComponent<CanvasRenderer>();
+                    overlayAlpha = meterOverlay.GetComponent<CanvasRenderer>();
+                }
             }
 
             // initialize the gradient used for TZP sampling
@@ -150,13 +157,6 @@ namespace AccurateStaminaDisplay
                     new GradientAlphaKey(1f, 0f),
                     new GradientAlphaKey(1f, 1f)
                 });
-            }
-
-            // ShyHUD compatibility
-            if (Chainloader.PluginInfos.ContainsKey("ShyHUD") && player != null && meterOverlay != null)
-            {
-                meterAlpha = player.sprintMeterUI.GetComponent<CanvasRenderer>();
-                overlayAlpha = meterOverlay.GetComponent<CanvasRenderer>();
             }
         }
     }
