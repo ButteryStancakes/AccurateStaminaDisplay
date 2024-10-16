@@ -80,7 +80,7 @@ namespace AccurateStaminaDisplay
                 if (!changeColor || player.isSprinting || (player.sprintMeter >= STAMINA_EXHAUSTED && !hindered))
                     exhausted = false;
             }
-            else if (changeColor && (player.isExhausted || hindered))
+            else if (changeColor && (player.isExhausted || hindered || (!player.isSprinting && player.sprintMeter < STAMINA_EXHAUSTED)))
             {
                 // can't sprint anymore; turn bar red
                 exhausted = true;
