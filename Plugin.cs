@@ -1,6 +1,9 @@
 ﻿using BepInEx;
 using BepInEx.Configuration;
 using HarmonyLib;
+using System.IO;
+using System.Reflection;
+using UnityEngine;
 
 namespace AccurateStaminaDisplay
 {
@@ -10,13 +13,25 @@ namespace AccurateStaminaDisplay
     [BepInDependency("ShyHUD", BepInDependency.DependencyFlags.SoftDependency)]
     public class Plugin : BaseUnityPlugin
     {
-        const string PLUGIN_GUID = "butterystancakes.lethalcompany.accuratestaminadisplay", PLUGIN_NAME = "Accurate Stamina Display", PLUGIN_VERSION = "2.1.4";
+        const string PLUGIN_GUID = "butterystancakes.lethalcompany.accuratestaminadisplay", PLUGIN_NAME = "Accurate Stamina Display", PLUGIN_VERSION = "2.2.0";
         internal static ConfigEntry<bool> configInhalantInfo;
         internal static ConfigEntry<ExhaustionIndicator> configExhaustionIndicator;
 
         void Awake()
         {
             LoadConfig();
+
+            try
+            {
+                AssetBundle upturnedBundle = AssetBundle.LoadFromFile(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "accuratestaminadisplay"));
+                NewStaminaMeter.altMeterImg = upturnedBundle.LoadAsset<Sprite>("SprintMeter");
+                upturnedBundle.Unload(false);
+            }
+            catch
+            {
+                Logger.LogError("Encountered some error loading asset bundle. Did you install the plugin correctly?");
+                return;
+            }
 
             new Harmony(PLUGIN_GUID).PatchAll();
 

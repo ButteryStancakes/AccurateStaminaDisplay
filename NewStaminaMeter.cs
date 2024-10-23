@@ -41,6 +41,10 @@ namespace AccurateStaminaDisplay
 		// prevents flickering when dismounnting ladders after hindrance
 		static bool wasClimbing;
 
+        // sprites for different thresholds
+        static Sprite origMeterImg;
+        internal static Sprite altMeterImg;
+
         internal static void UpdateMeter(int playerMovementHinderedPrev)
         {
             // not initialized yet, skip processing for this frame and initialize
@@ -52,6 +56,15 @@ namespace AccurateStaminaDisplay
 
             // controls what is considered "empty" on the meter; either the "exhaustion threshold", or when sprinting automatically ends
             minStamina = Plugin.configExhaustionIndicator.Value == ExhaustionIndicator.Empty ? STAMINA_EXHAUSTED : STAMINA_EMPTY;
+
+            // adjust meter notches
+            if (origMeterImg != null)
+            {
+                if (player.sprintMeterUI.sprite == origMeterImg && minStamina == STAMINA_EMPTY && altMeterImg != null)
+                    player.sprintMeterUI.sprite = altMeterImg;
+                else if (player.sprintMeterUI.sprite == altMeterImg && minStamina == STAMINA_EXHAUSTED)
+                    player.sprintMeterUI.sprite = origMeterImg;
+            }
 
             // first calculate what percentage of "true stamina" the player actually has left (dependent on above)
             float trueStamina = Mathf.InverseLerp(minStamina, 1f, player.sprintMeter);
@@ -109,6 +122,9 @@ namespace AccurateStaminaDisplay
                         overlayAlpha.SetAlpha(meterAlpha.GetAlpha());
                     // for critical injury hiding the meter
                     meterOverlay.enabled = player.sprintMeterUI.enabled;
+                    // fix meter notches
+                    /*if (meterOverlay.sprite != player.sprintMeterUI.sprite)
+                        meterOverlay.sprite = player.sprintMeterUI.sprite;*/
                     meterOverlay.gameObject.SetActive(true);
                 }
                 else
@@ -129,6 +145,8 @@ namespace AccurateStaminaDisplay
                     Transform transMeterOverlay = Object.Instantiate(player.sprintMeterUI.transform, player.sprintMeterUI.transform.parent);
                     meterOverlay = transMeterOverlay.GetComponent<Image>();
                     meterOverlay.color = EX_COLOR;
+                    if (altMeterImg != null)
+                        meterOverlay.sprite = altMeterImg;
                 }
 
                 // ShyHUD compatibility
@@ -137,26 +155,29 @@ namespace AccurateStaminaDisplay
                     meterAlpha = player.sprintMeterUI.GetComponent<CanvasRenderer>();
                     overlayAlpha = meterOverlay.GetComponent<CanvasRenderer>();
                 }
+
+                // control notches on meter
+                if (origMeterImg == null)
+                    origMeterImg = player.sprintMeterUI.sprite;
             }
 
             // initialize the gradient used for TZP sampling
             if (tzpGrad == null)
             {
                 tzpGrad = new Gradient();
-                tzpGrad.SetKeys(new GradientColorKey[]
-                {
+                tzpGrad.SetKeys(
+                [
                     new GradientColorKey(NORM_COLOR, 0f),
                     new GradientColorKey(Color.yellow, TZP_LIGHT_MIN),
                     new GradientColorKey(Color.yellow, TZP_LIGHT_MAX),
                     new GradientColorKey(LIME, TZP_HEAVY_MIN),
                     new GradientColorKey(LIME, TZP_HEAVY_MAX),
                     new GradientColorKey(Color.white, 1f)
-                },
-                new GradientAlphaKey[]
-                {
+                ],
+                [
                     new GradientAlphaKey(1f, 0f),
                     new GradientAlphaKey(1f, 1f)
-                });
+                ]);
             }
         }
     }
