@@ -23,9 +23,9 @@ namespace AccurateStaminaDisplay
 
             try
             {
-                AssetBundle upturnedBundle = AssetBundle.LoadFromFile(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "accuratestaminadisplay"));
-                NewStaminaMeter.altMeterImg = upturnedBundle.LoadAsset<Sprite>("SprintMeter");
-                upturnedBundle.Unload(false);
+                AssetBundle meterBundle = AssetBundle.LoadFromFile(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "accuratestaminadisplay"));
+                NewStaminaMeter.altMeterImg = meterBundle.LoadAsset<Sprite>("SprintMeter");
+                meterBundle.Unload(false);
             }
             catch
             {
