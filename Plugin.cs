@@ -1,4 +1,5 @@
 ﻿using BepInEx;
+using BepInEx.Bootstrap;
 using BepInEx.Configuration;
 using HarmonyLib;
 using System.IO;
@@ -10,15 +11,24 @@ namespace AccurateStaminaDisplay
     internal enum ExhaustionIndicator { Empty, ChangeColor, AlwaysShow, DontShow }
 
     [BepInPlugin(PLUGIN_GUID, PLUGIN_NAME, PLUGIN_VERSION)]
-    [BepInDependency("ShyHUD", BepInDependency.DependencyFlags.SoftDependency)]
+    [BepInDependency(GUID_SHY_HUD, BepInDependency.DependencyFlags.SoftDependency)]
+    [BepInDependency(GUID_LOBBY_COMPATIBILITY, BepInDependency.DependencyFlags.SoftDependency)]
     public class Plugin : BaseUnityPlugin
     {
-        const string PLUGIN_GUID = "butterystancakes.lethalcompany.accuratestaminadisplay", PLUGIN_NAME = "Accurate Stamina Display", PLUGIN_VERSION = "2.2.0";
+        internal const string PLUGIN_GUID = "butterystancakes.lethalcompany.accuratestaminadisplay", PLUGIN_NAME = "Accurate Stamina Display", PLUGIN_VERSION = "2.2.1";
         internal static ConfigEntry<bool> configInhalantInfo;
         internal static ConfigEntry<ExhaustionIndicator> configExhaustionIndicator;
 
+        const string GUID_SHY_HUD = "ShyHUD", GUID_LOBBY_COMPATIBILITY = "BMX.LobbyCompatibility";
+
         void Awake()
         {
+            if (Chainloader.PluginInfos.ContainsKey(GUID_LOBBY_COMPATIBILITY))
+            {
+                Logger.LogInfo("CROSS-COMPATIBILITY - Lobby Compatibility detected");
+                LobbyCompatibility.Init();
+            }
+
             LoadConfig();
 
             try
@@ -50,10 +60,10 @@ namespace AccurateStaminaDisplay
                 "Misc",
                 "ExhaustionIndicator",
                 ExhaustionIndicator.AlwaysShow,
-                "How the stamina meter displays exhaustion. You become exhausted when stamina hits 0% or if you release the sprint key while stamina is 20% or lower.\n" +
-                "\"Empty\" will make the stamina bar display as empty for the last 20% of stamina, just like the original game. " +
-                "\"ChangeColor\" will turn the bar red when you are currently exhausted. " +
-                "\"AlwaysShow\" will always display the last 20% of the bar as red. " +
+                "How the stamina meter displays exhaustion. You become exhausted when stamina hits 0% or if you release the sprint key while stamina is 20% or lower.\n\n" +
+                "\"Empty\" will make the stamina bar display as empty for the last 20% of stamina, just like the original game.\n" +
+                "\"ChangeColor\" will turn the bar red when you are currently exhausted.\n" +
+                "\"AlwaysShow\" will always display the last 20% of the bar as red.\n" +
                 "\"DontShow\" will not display any special indicator for exhaustion.");
 
             // if player is using the default for the above setting, there's the possibility old configs might need migration
